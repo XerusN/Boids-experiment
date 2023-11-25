@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53f6c431f8f794c42bcf925cfde8d992, type: 3}
+  m_Name: BoidSettings
+  m_EditorClassIdentifier: 
+  speed: 1
+  goalStrength: 1
+  avoidStrength: 20
+  randomStrength: 1
+  randomAngleRange: 60
+  viewRadius: 1
+  viewAngle: 180
+  viewResolution: 40
+  viewStrength: 1

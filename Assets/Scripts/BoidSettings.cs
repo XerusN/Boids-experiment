@@ -2,17 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoidSettings : MonoBehaviour
+[CreateAssetMenu]
+public class BoidSettings : ScriptableObject
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [Header("Movement")]
+    public float speed = 1.0f;
+    //public float rotationSpeed = Mathf.PI / 2;
+    public float goalStrength = 1.0f;
+    public float avoidStrength = 1.0f;
+    public float randomStrength = 1.0f;
+    public float randomAngleRange = 60f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+
+    [Header("View")]
+    public float viewRadius = 1.0f;
+    public float viewAngle = 120f;
+    public int viewResolution = 12;
+
+
+
+    [Header("Decision Making")]
+    public float viewStrength = 1.0f;
+    
+    
 }
