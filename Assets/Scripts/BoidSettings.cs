@@ -17,7 +17,7 @@ public class BoidSettings : ScriptableObject
 
     [Header("View")]
     public float viewRadius = 1.0f;
-    public float viewAngle = 120f;
+    public float viewAngle = 240f;
     public int viewResolution = 12;
 
 

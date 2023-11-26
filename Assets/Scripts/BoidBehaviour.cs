@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Security;
@@ -67,30 +68,27 @@ public class BoidBehaviour : MonoBehaviour
     {
         Vector3 change = Vector3.zero;
         Vector3 changeTemp = Vector3.zero;
-        float angle;
+        float angle = 0;
         float dAngle = Settings.viewAngle / Settings.viewResolution;
+        Boolean isPathClear = false;
+        int i = 0;
 
-        for (int i = 0; i < Settings.viewResolution / 2; i++)
+        while (!isPathClear | i <= Settings.viewResolution)
         {
-            angle = i * dAngle;
-            changeTemp = AvoidSingleCollision(angle);
-            if (i == 0)
+            if (i % 2 == 0)
             {
-                change = changeTemp;
-                
+                angle = i / 2 * dAngle;
             }
             else
             {
-                if (changeTemp.magnitude > change.magnitude)
-                {
-                    change = changeTemp;
-                }
-                changeTemp = AvoidSingleCollision(-angle);
+                angle = - (i / 2 - 1) * dAngle;
             }
-            if (changeTemp.magnitude > change.magnitude)
+            change = ClearPath(angle);
+            if (change != Vector3.zero)
             {
-                change = changeTemp;
+                isPathClear = true;
             }
+            i++;
         }
         
         change *= Time.deltaTime * Settings.avoidStrength;
@@ -100,7 +98,7 @@ public class BoidBehaviour : MonoBehaviour
     }
 
 
-    private Vector3 AvoidSingleCollision(float angle)       //angle in degrees
+    private Vector3 ClearPath(float angle)       //angle in degrees
     {
         Vector3 change = Vector3.zero;
         Vector3 dir;
@@ -110,17 +108,13 @@ public class BoidBehaviour : MonoBehaviour
         //Debug.Log(ray.direction);
         RaycastHit hit;
         Physics.Raycast(ray, out hit, Settings.viewRadius);
-        if (hit.collider != null)
+        Debug.DrawRay(ray.origin, ray.direction);
+        if (hit.distance > Settings.viewRadius)
         {
-            Debug.DrawRay(ray.origin, ray.direction * hit.distance);
-            dir = hit.transform.position - this.transform.position;
-            change = dir / (dir.magnitude * dir.magnitude);
-        } else
-        {
-            Debug.DrawRay(ray.origin, ray.direction);
+            change = dir;
         }
 
-        return -change;
+        return change;
     }
 
 
@@ -128,7 +122,7 @@ public class BoidBehaviour : MonoBehaviour
     {
         for (; ; )
         {
-            randomAngle = Random.Range(-Settings.randomAngleRange, Settings.randomAngleRange);
+            randomAngle = UnityEngine.Random.Range(-Settings.randomAngleRange, Settings.randomAngleRange);
             yield return new WaitForSeconds(10f);
         }
         
