@@ -10,6 +10,7 @@ public class BoidSettings : ScriptableObject
     //public float rotationSpeed = Mathf.PI / 2;
     public float goalStrength = 1.0f;
     public float avoidStrength = 1.0f;
+    public float alignStrength = 1.0f;
     public float randomStrength = 1.0f;
     public float randomAngleRange = 60f;
 
@@ -17,13 +18,11 @@ public class BoidSettings : ScriptableObject
 
     [Header("View")]
     public float viewRadius = 1.0f;
-    public float viewAngle = 120f;
+    public float viewAngle = 180f;
     public int viewResolution = 12;
+    public int senseResolution = 40;
 
 
-
-    [Header("Decision Making")]
-    public float viewStrength = 1.0f;
     
     
 }

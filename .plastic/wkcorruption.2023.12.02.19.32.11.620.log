@@ -1,0 +1,9 @@
+Process name: /home/xaviern/Unity/Hub/Editor/2022.3.8f1/Editor/Unity
+Process image: /home/xaviern/Unity/Hub/Editor/2022.3.8f1/Editor/Unity
+Process started: 2023.12.02.19.31.15.514
+Error: ErrorClientconfignotfound
+StackTrace:   at Codice.Client.Common.ClientConfig.get_SafeData () [0x00037] in <8d9c715c82d0486d94302c11b07ddc1c>:0 
+  at Codice.Client.Common.ClientConfig.IsNewWorkspaceTreeFormatEnabled () [0x00001] in <8d9c715c82d0486d94302c11b07ddc1c>:0 
+  at Codice.CM.WorkspaceServer.WorkspaceTreeDataStore.CheckIsValidVersion (Codice.CM.Common.WorkspaceInfo wkInfo, System.Byte fileVersion) [0x0007b] in <8d9c715c82d0486d94302c11b07ddc1c>:0 
+  at Codice.CM.WorkspaceServer.WorkspaceTreeDataStore.ReadLoadedChangesetFromFile (Codice.CM.Common.WorkspaceInfo wkInfo, System.String wkTreeFile, Codice.Utils.Buffers.FlexibleBufferPool bufferPool) [0x00066] in <8d9c715c82d0486d94302c11b07ddc1c>:0 
+  at Codice.CM.WorkspaceServer.WorkspaceTreeDataStore.ReadLoadedChangesetId (Codice.CM.Common.WorkspaceInfo wkInfo, System.String wkTreeFile, Codice.Utils.Buffers.FlexibleBufferPool bufferPool) [0x00008] in <8d9c715c82d0486d94302c11b07ddc1c>:0 
