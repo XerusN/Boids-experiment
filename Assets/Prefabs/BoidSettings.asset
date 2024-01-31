@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
   speed: 1
-  goalStrength: 1
-  avoidStrength: 20
-  randomStrength: 1
+  goalStrength: 0.1
+  avoidStrength: 5
+  alignStrength: 0.1
+  randomStrength: 0.01
   randomAngleRange: 60
   viewRadius: 1
-  viewAngle: 180
-  viewResolution: 40
-  viewStrength: 1
+  viewAngle: 240
+  viewResolution: 80
+  senseResolution: 80

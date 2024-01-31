@@ -9,6 +9,8 @@ public class BoidManager : MonoBehaviour
     public GameObject goalPrefab;
     public SceneSettings Scene;
 
+    private float margin = 1.0f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -22,7 +24,7 @@ public class BoidManager : MonoBehaviour
 
         for (int i = 0; i < Scene.boidLimit; i++)
         {
-            spawnPos = new Vector3(Random.Range(-Scene.xLimit + 0.5f, Scene.xLimit - 0.5f), Random.Range(-Scene.yLimit - 0.5f,Scene.yLimit + 0.5f), 0);
+            spawnPos = new Vector3(Random.Range(-Scene.xLimit + margin, Scene.xLimit - margin), Random.Range(-Scene.yLimit - margin,Scene.yLimit + margin), 0);
             rotation = Random.Range(0, 360);
 
             boid = Instantiate(boidPrefab, spawnPos, Quaternion.Euler(0, 0, rotation));
