@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53f6c431f8f794c42bcf925cfde8d992, type: 3}
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
-  speed: 1
-  goalStrength: 0.1
-  avoidStrength: 5
+  defaultSpeed: 1
+  goalStrength: 0
+  avoidStrength: 1
   alignStrength: 0.1
-  randomStrength: 0.01
+  middleStrength: 1
+  randomStrength: 0
   randomAngleRange: 60
+  maxRotation: 60
   viewRadius: 1
   viewAngle: 240
   viewResolution: 80
   senseResolution: 80
+  nbInfluent: 6

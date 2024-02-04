@@ -9,6 +9,8 @@ public class BoidManager : MonoBehaviour
     public GameObject goalPrefab;
     public SceneSettings Scene;
 
+    public List<GameObject> boidList = new List<GameObject>();
+
     private float margin = 1.0f;
 
 
@@ -28,7 +30,9 @@ public class BoidManager : MonoBehaviour
             rotation = Random.Range(0, 360);
 
             boid = Instantiate(boidPrefab, spawnPos, Quaternion.Euler(0, 0, rotation));
+            boid.GetComponent<BoidBehaviour>().id = i;
             boid.transform.SetParent(this.transform);
+            boidList.Add(boid);
 
         }
     }

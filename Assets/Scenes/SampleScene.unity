@@ -155,6 +155,7 @@ MonoBehaviour:
   boidPrefab: {fileID: 7478427282154077602, guid: 2ddd657fa0ea86343a829b8e777b53bf, type: 3}
   goalPrefab: {fileID: 3047797939158158047, guid: fec34a927f4ef0d488ba13f672ffc256, type: 3}
   Scene: {fileID: 11400000, guid: ce68b729796962249bf3f7f59a619f3c, type: 2}
+  boidList: []
 --- !u!4 &466926759
 Transform:
   m_ObjectHideFlags: 0
@@ -164,7 +165,7 @@ Transform:
   m_GameObject: {fileID: 466926757}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.9290969, y: 1.7890868, z: 0.20738949}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

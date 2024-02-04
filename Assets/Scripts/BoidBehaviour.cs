@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Net.Security;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -11,188 +6,240 @@ using UnityEngine.UIElements;
 
 public class BoidBehaviour : MonoBehaviour
 {
+    public int id = 0;
+
 
     public BoidSettings Settings;
     public SceneSettings Scene;
-
-    public UnityEngine.Vector3 direction;
-
-    private float randomAngle;
+    
+    
 
     public GameObject goal;
+
+    public Vector3 target;
+    public Vector3 direction;
+    public float speed;
+
+    private BoidManager Manager;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.direction = UnityEngine.Vector3.up;
-        StartCoroutine(GenerateRandomAngle());
+        Manager = GameObject.Find("Boid Manager").GetComponent<BoidManager>();
+        if (Manager == null)
+        {
+            Debug.LogError("Main Manager not found!");
+        }
+
+        this.transform.position = new Vector3(Random.Range(-Scene.xLimit + 0.5f, Scene.xLimit - 0.5f), Random.Range(-Scene.yLimit + 0.5f, Scene.yLimit - 0.5f), 0);
+        target = new Vector3(Random.Range(-Scene.xLimit + 0.5f, Scene.xLimit - 0.5f), Random.Range(-Scene.yLimit + 0.5f, Scene.yLimit - 0.5f), 0);
+        direction = (this.target - this.transform.position).normalized;
+        speed = Settings.defaultSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        direction = this.transform.up;
+        UpdateDirection();
         Move();
-        //Debug.Log(randomAngle);
+    }
+
+
+
+
+    private void UpdateDirection()
+    {
+        direction = Interact();
+        AvoidCollision();
+
+        //Limit to avoid sudden changes in direction
+        direction = Vector3.RotateTowards(this.transform.up, direction, Settings.maxRotation * Mathf.PI / 180 , 0f);
     }
 
 
 
     private void Move()
     {
-
-        this.direction = (this.direction + TowardGoal() + AvoidCollision() + RandomMove() + AlignDirection()).normalized;
-        this.transform.position += this.direction * Settings.speed * Time.deltaTime;
-        this.transform.up = this.direction;
+        //speed = (180 - Mathf.Abs(Vector3.Angle(this.transform.up, direction)) % 180)*Settings.defaultSpeed;
+        speed = Settings.defaultSpeed;
+        this.transform.up = direction.normalized;
+        this.transform.position += transform.up * speed * Time.deltaTime;
     }
 
-    private UnityEngine.Vector3 RandomMove()
+    private Vector3 Interact()
     {
+        Vector3 change = Vector3.zero;
 
-        
-        UnityEngine.Vector3 change = this.transform.up;
+        GameObject[] closeBoids = new GameObject[Settings.nbInfluent];
+        closeBoids = InteractableList();
 
-        change = UnityEngine.Quaternion.Euler(0, 0, this.randomAngle) * change;
-        change *= Settings.randomStrength;
+        change += SteerAway(closeBoids);
+        change += Align(closeBoids);
+        change += TowardMiddle(closeBoids);
+
 
         return change;
     }
 
 
 
-
-    private UnityEngine.Vector3 TowardGoal()
+    private GameObject[] InteractableList()
     {
-        UnityEngine.Vector3 change = UnityEngine.Vector3.zero;
-        
-        change = (goal.transform.position - this.transform.position).normalized * Settings.goalStrength;
-        return change;
+        GameObject currentBoid = null;
+        GameObject[] boidArray = new GameObject[Settings.nbInfluent];
+        float[] distanceArray = new float[Settings.nbInfluent];
+
+        for (int i = 0;  i < Settings.nbInfluent; i++)
+        {
+            distanceArray[i] = Mathf.Infinity;
+        }
+
+        for (int i = 0; i < Manager.boidList.Count; i++)
+        {
+            if (i == this.id) { break; }
+
+            currentBoid = Manager.boidList[i];
+
+            for (int j = 0; j < boidArray.Length; j++)
+            {
+                if (boidArray[j] == null)
+                {
+                    boidArray[j] = currentBoid;
+                    distanceArray[j] = DistanceToThis(currentBoid);
+                    break;
+                }
+
+                if (DistanceToThis(currentBoid) < distanceArray[j])
+                {
+                    InsertBoth(boidArray, distanceArray, currentBoid, j);
+                    break;
+                }
+            }
+        }
+
+        return boidArray;
     }
 
-    // private Vector3 AvoidCollision()
-    // {
-    //     Vector3 change = Vector3.zero;
-    //     Vector3 changeTemp = Vector3.zero;
-    //     float angle;
-    //     float dAngle = Settings.viewAngle / Settings.viewResolution;
 
-    //     for (int i = 0; i < Settings.viewResolution / 2; i++)
-    //     {
-    //         angle = i * dAngle;
-    //         changeTemp = AvoidSingleCollision(angle);
-    //         if (i == 0)
-    //         {
-    //             change = changeTemp;
-                
-    //         }
-    //         else
-    //         {
-    //             if (changeTemp.magnitude > change.magnitude)
-    //             {
-    //                 change = changeTemp;
-    //             }
-    //             changeTemp = AvoidSingleCollision(-angle);
-    //         }
-    //         if (changeTemp.magnitude > change.magnitude)
-    //         {
-    //             change = changeTemp;
-    //         }
-    //     }
-        
-    //     change *= Time.deltaTime * Settings.avoidStrength;
-
-
-    //     return change;
-    // }
-
-
-
-
-
-    private UnityEngine.Vector3 AvoidCollision()
+    private Vector3 SteerAway(GameObject[] influentBoids)
     {
-        UnityEngine.Vector3 change = UnityEngine.Vector3.zero;
-        float angle = 0;
+        Vector3 change = Vector3.zero;
+
+        for (int i = 0;i < influentBoids.Length; i++)
+        {
+            if (influentBoids[i] == null) { break; }
+            change += (this.transform.position - influentBoids[i].transform.position).normalized * Mathf.Pow(DistanceToThis(influentBoids[i]), -1f);
+        }
+        
+        return change*Settings.avoidStrength;
+    }
+
+    private Vector3 Align(GameObject[] influentBoids)
+    {
+        Vector3 change = Vector3.zero;
+
+        for (int i = 0; i < influentBoids.Length; i++)
+        {
+            if (influentBoids[i] == null) { break; }
+            change += influentBoids[i].transform.up;
+        }
+
+        return change * Settings.alignStrength;
+    }
+
+    private Vector3 TowardMiddle(GameObject[] influentBoids)
+    {
+        Vector3 change = Vector3.zero;
+
+        for (int i = 0; i < influentBoids.Length; i++)
+        {
+            if (influentBoids[i] == null) { break; }
+            change += (influentBoids[i].transform.position - this.transform.position).normalized * Mathf.Pow(DistanceToThis(influentBoids[i]), 1f);
+        }
+        change = change.normalized;
+
+        return change * Settings.middleStrength;
+    }
+
+
+    private void AvoidCollision()   //overwrite direction to find a clear path as close as possible to 
+    {
+        Vector3 change = Vector3.zero;
+        Vector3 changeTemp = UnityEngine.Vector3.zero;
+        float angle;
         float dAngle = Settings.viewAngle / Settings.viewResolution;
+        Vector3 dir = new Vector3();
         bool isPathClear = false;
-        UnityEngine.Vector3 dir;
 
-        while(!isPathClear && angle < Settings.viewAngle/2){
-            for (int i = -1; i < 2; i += 2){
-                dir = UnityEngine.Quaternion.Euler(0, 0, i * angle) * this.transform.up;
+        for (int i = 0; i < Settings.viewResolution / 2; i++)
+        {
+            angle = i * dAngle;
+            
+            for (int j = 0; j < 2; j++)
+            {
+                dir = Quaternion.Euler(0, 0, i * angle * (float)Mathf.Pow(-1, j)) * direction;
                 Ray ray = new Ray(this.transform.position, dir);
-                //Debug.Log(ray.direction);
                 RaycastHit hit;
                 Physics.Raycast(ray, out hit, Settings.viewRadius);
                 if (hit.collider != null)
                 {
                     Debug.DrawRay(ray.origin, ray.direction * hit.distance);
-                } else
+                    if (hit.collider.gameObject.CompareTag("Obstacle") == true)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        isPathClear = true;
+                        break;
+                    }
+                }
+                else
                 {
                     Debug.DrawRay(ray.origin, ray.direction);
-                    change = dir;
                     isPathClear = true;
+                    break;
                 }
+
             }
-            
-            angle += dAngle;
+
+            if (isPathClear == true)
+            {
+                break;
+            }
+
+
+
         }
 
-        
-        
-        change *= Settings.avoidStrength;
-
-
-        return change;
+        direction = dir;
     }
 
 
-    IEnumerator GenerateRandomAngle()
+    private float DistanceToThis(GameObject gameObject)
     {
-        for (; ; )
+        float distance = 0f;
+        distance = (gameObject.transform.position - this.transform.position).magnitude;
+        return distance;
+    }
+
+    private void InsertBoth(GameObject[] boidArray, float[] distanceArray, GameObject currentBoid, int i)
+    {
+        GameObject tempObject1 = currentBoid;
+        GameObject tempObject2 = null;
+        float tempDist1 = DistanceToThis(currentBoid);
+        float tempDist2 = 0f;
+
+        for (int j = i; j < boidArray.Length; j++)
         {
-            randomAngle = Random.Range(-Settings.randomAngleRange, Settings.randomAngleRange);
-            yield return new WaitForSeconds(2f);
+            tempObject2 = boidArray[j];
+            tempDist2 = distanceArray[j];
+            boidArray[j] = tempObject1;
+            distanceArray[j] = tempDist1;
+            tempObject1 = tempObject2;
+            tempDist1 = tempDist2;
         }
-        
-
     }
-
-
-
-
-    private UnityEngine.Vector3 AlignDirection(){
-
-        UnityEngine.Vector3 change = UnityEngine.Vector3.zero;
-        UnityEngine.Vector3 dir;
-        float angle = 0;
-        float dAngle = 360 / Settings.senseResolution;
-
-        while(angle < 360f){
-            dir = UnityEngine.Quaternion.Euler(0, 0, angle) * this.transform.up;
-            Ray ray = new Ray(this.transform.position, dir);
-            //Debug.Log(ray.direction);
-            RaycastHit hit;
-            Physics.Raycast(ray, out hit, Settings.viewRadius);
-            if (hit.collider != null)
-            {
-                if (hit.collider.gameObject.tag == "Boid"){
-                    Debug.DrawRay(ray.origin, ray.direction * hit.distance);
-                    dir = hit.transform.up;
-                    change += dir.normalized / (hit.distance * hit.distance);
-                }
-            } else
-            {
-                //Debug.DrawRay(ray.origin, ray.direction);
-            }
-
-
-
-            angle += dAngle;
-        }
-        change = change.normalized * Settings.alignStrength;
-
-        return change;
-    }
-
 
 }

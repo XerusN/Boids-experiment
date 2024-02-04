@@ -7,11 +7,12 @@ public class SceneSettings : ScriptableObject
 {
 
     [Header("Boundaries")]
-    public float xLimit = 20f;
-    public float yLimit = 10f;
+    public float xLimit = 10f;
+    public float yLimit = 5f;
+    public float zLimit = 0f;
 
     [Header("Boids")]
-    public int boidLimit = 10;
+    public int boidLimit = 20;
 
 
 
