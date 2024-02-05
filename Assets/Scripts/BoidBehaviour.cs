@@ -51,10 +51,11 @@ public class BoidBehaviour : MonoBehaviour
     private void UpdateDirection()
     {
         direction = Interact();
+        //Limit to avoid sudden changes in direction
+        direction = Vector3.RotateTowards(this.transform.up, direction, Settings.maxRotation * Mathf.PI / 180, 0f);
         AvoidCollision();
 
-        //Limit to avoid sudden changes in direction
-        direction = Vector3.RotateTowards(this.transform.up, direction, Settings.maxRotation * Mathf.PI / 180 , 0f);
+        direction = new Vector3(direction.x, direction.y, 0);
     }
 
 
